@@ -51,3 +51,7 @@ Once I get more comfortable with the hardware, I'm going to write a long-running
 ###Feedback:###
 
 I welcome any feedback or advice you are willing to offer. You can use the issues tab in Github or reach out to me at snewman18 [at gmail dot com].
+
+###License:###
+
+This project is distributed under the MIT license. Do whatever you want with it, but please provide attribution back and don't hold me liable.
