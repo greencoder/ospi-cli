@@ -36,7 +36,11 @@ try:
         os.remove(filepath)
     else:
         delta = (expiration - now)
-        print "Delay in effect for %d more hours." % int(delta.seconds/3600)
+        minutes = int(delta.seconds/60)
+        if minutes > 60:
+            print "Delay in effect for %.1f more hours." % float(minutes/60)
+        else:
+            print "Delay in effect for %d more minutes." % int(minutes)
 
 except ValueError:
     # If we can't cast the value of the file into a date object, there is 
