@@ -1,0 +1,5 @@
+DELAY
+*.DS_Store*
+log.txt
+scripts/*
+*.pyc
