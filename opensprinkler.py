@@ -58,6 +58,38 @@ class OpenSprinkler():
 
         GPIO.output(self.PIN_SR_LAT, True)
 
+    def _initialize_hardwdare(self):
+        """
+        This contains the low-level stuff required to make the GPIO operations work. Someone 
+        smarter than me wrote this stuff, I just smile and nod.
+        """
+        self.PIN_SR_CLK = 4
+        self.PIN_SR_NOE = 17
+        self.PIN_SR_LAT = 22
+        self.PIN_SR_DAT = 21
+
+        # The 2nd revision of the RPI has a different pin value
+        if GPIO.RPI_REVISION == 2:
+            self.PIN_SR_DAT = 27
+
+        # Not sure why this is called, but it was in the original script.
+        GPIO.cleanup()
+
+        # setup GPIO pins to interface with shift register. Don't muck with this
+        # stuff unless you know why you are doing it.
+        GPIO.setmode(GPIO.BCM)
+
+        GPIO.setup(self.PIN_SR_CLK, GPIO.OUT)
+        GPIO.setup(self.PIN_SR_NOE, GPIO.OUT)        
+
+        self._disable_shift_register_output()        
+
+        GPIO.setup(self.PIN_SR_DAT, GPIO.OUT)
+        GPIO.setup(self.PIN_SR_LAT, GPIO.OUT)
+
+        self._set_shift_registers(self.station_values)
+        self._enable_shift_register_output()
+
     def cleanup(self):
         """
         This runs at the termination of the file, turning off all stations, making 
@@ -152,7 +184,7 @@ class OpenSprinkler():
         self.log("Turning Off All Stations.")
         off_values = [0] * self.number_of_stations
         self._set_shift_registers(off_values)
-    
+
     def __init__(self, debug=False, number_of_stations=8):
         
         self.number_of_stations = number_of_stations
@@ -166,28 +198,8 @@ class OpenSprinkler():
         # Initial values are zero (off) for all stations.
         self.station_values = [0] * number_of_stations
 
-        self.PIN_SR_CLK = 4
-        self.PIN_SR_NOE = 17
-        self.PIN_SR_LAT = 22
-        self.PIN_SR_DAT = 21
-
-        # The 2nd revision of the RPI has a different pin value
-        if GPIO.RPI_REVISION == 2:
-            self.PIN_SR_DAT = 27
-
-        # Not sure why this is called, but it was in the original script.
-        GPIO.cleanup()
-        
-        # setup GPIO pins to interface with shift register. Don't muck with this
-        # stuff unless you know why you are doing it.
-        GPIO.setmode(GPIO.BCM)    
-        GPIO.setup(self.PIN_SR_CLK, GPIO.OUT)
-        GPIO.setup(self.PIN_SR_NOE, GPIO.OUT)        
-        self._disable_shift_register_output()        
-        GPIO.setup(self.PIN_SR_DAT, GPIO.OUT)
-        GPIO.setup(self.PIN_SR_LAT, GPIO.OUT)
-        self._set_shift_registers(self.station_values)
-        self._enable_shift_register_output()
+        # Get the hardware ready for operations
+        self._initialize_hardware()
         
 
 if __name__ == "__main__":
