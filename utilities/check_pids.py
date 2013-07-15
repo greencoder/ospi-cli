@@ -29,12 +29,12 @@ for file_name in pid_files:
 if not needs_cleanup:
     sys.exit()
 
+# If we got here, we should ensure that all stations are turned off.
 sprinkler = OpenSprinkler()
-sprinkler.cleanup()
+sprinkler.reset_all_stations()
 
 # Any old files we found should be removed now that we've finished our 
 # housekeeping.
 for old_file in old_pid_files:
     print "Deleting File: %s" % old_file
     os.remove(old_file)
-
