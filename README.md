@@ -40,7 +40,7 @@ As a convenience, there is a utility program to automatically create the delay f
 The main purpose of this limited program is to allow you to schedule your stations by cron. Here's an example:
 
     # Run every Monday, Wednesday, and Friday at 5:00am
-    00 05 * * 1,3,5 /usr/bin/python /path/to/opensprinkler.py --station 1 --minutes 15
+    00 05 * * 1,3,5 sudo /usr/bin/python /path/to/opensprinkler.py --station 1 --minutes 15
 
 ###Known Limitations:###
 
