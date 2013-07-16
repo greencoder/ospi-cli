@@ -3,11 +3,16 @@ import sys
 import stat
 import time
 
-from opensprinkler import OpenSprinkler
-from opensprinkler import MAX_MINUTES_PER_STATION
-
 CUR_DIR = os.path.dirname(os.path.realpath(__file__))
 PARENT_DIR = os.path.abspath(os.path.join(CUR_DIR, os.pardir))
+
+# The opensprinkler file is one directory up. This is ugly, 
+# and it will be fixed in the future. For now, we'll just add 
+# the parent directory to the path.
+sys.path.insert(0, PARENT_DIR)
+
+from opensprinkler import OpenSprinkler
+from opensprinkler import MAX_MINUTES_PER_STATION
 
 # Look in the main directory for any files that end in .pid. The name of 
 # the file represents the pid of any running Sprinkler programs
