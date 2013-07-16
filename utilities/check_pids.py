@@ -25,7 +25,7 @@ old_pid_files = []
 # max number of minutes that are configured. If any files older than the max age 
 # allowed are found, we'll flag them and run some cleanup.
 for file_name in pid_files:
-    file_path = os.path.join(CUR_DIR, file_name)
+    file_path = os.path.join(PARENT_DIR, file_name)
     file_age_min = int(time.time() - os.stat(file_path)[stat.ST_MTIME])/60
     if file_age_min > (MAX_MINUTES_PER_STATION + 5):
         needs_cleanup = True
