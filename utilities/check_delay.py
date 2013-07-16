@@ -33,7 +33,7 @@ try:
     # then go ahead and remove the file.
     if now >= expiration:
         print "Expiration has passed. Removing file."
-        os.remove(filepath)
+        os.remove(delay_file_path)
     else:
         delta = (expiration - now)
         minutes = int(delta.seconds/60)
@@ -46,4 +46,4 @@ except ValueError:
     # If we can't cast the value of the file into a date object, there is 
     # no sense keeping the file around. Deleate it.
     print "Could not read date in file. Removing file."
-    os.remove(filepath)
+    os.remove(delay_file_path)
