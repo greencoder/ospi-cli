@@ -58,7 +58,7 @@ class OpenSprinkler():
 
         GPIO.output(self.PIN_SR_LAT, True)
 
-    def _initialize_hardwdare(self):
+    def _initialize_hardware(self):
         """
         This contains the low-level stuff required to make the GPIO operations work. Someone 
         smarter than me wrote this stuff, I just smile and nod.
@@ -121,6 +121,13 @@ class OpenSprinkler():
         if os.path.exists(file_path):
             os.remove(file_path)
 
+    def check_for_delay(self):
+        if os.path.exists(os.path.join(CUR_DIR, 'DELAY')):
+            self.log("Found DELAY file.")
+            return True
+        else:
+            return False
+
     ### Logging functionality ###
 
     def log(self, message):
@@ -138,7 +145,7 @@ class OpenSprinkler():
 
     ### Higher-Level Interface. These are the functions you want to call
 
-    def operate_station(self, station_number, minutes):
+    def operate_station(self, station_number, minutes, queue=None, callback_function=None):
         """
         This is the method that operates a station. Running it causes any 
         currently-running stations to turn off, then a pid file is created that 
@@ -146,6 +153,8 @@ class OpenSprinkler():
         ALL stations are turned off and the file is cleaned up.
         """
         self.log("Operating station %d for %d minutes." % (station_number, minutes))
+
+        print "DEBUG: %s" % queue
 
         # First, set all stations to zero
         station_values = [0] * self.number_of_stations
@@ -163,19 +172,27 @@ class OpenSprinkler():
         time_to_stop = datetime.datetime.now() + datetime.timedelta(minutes=minutes)
         
         while True:
+            # If the queue is not empty, it's because a message was passed from the 
+            # parent thread.
+            if queue and not queue.empty():
+                self.remove_status_file()
+                self.reset_all_stations()
+                break
             if datetime.datetime.now() < time_to_stop:
                 pass
             else:
                 self.log("Finished operating station.")
+                # We don't know if a new job started while we were snoozing.
+                # If one did, we don't want to close all valves anymore.
+                # We need a way to check and see if this process is the most
+                # recent one.
                 self.remove_status_file()
                 self.reset_all_stations()
                 break
 
-    def get_station_status(self, station_number):
-        """
-        This isn't currently used, but it returns the in-memory state of stations.
-        """
-        return self.station_values
+        # If a callback function was passed, we call it now.
+        if callback_function:
+            callback_function(station_number)
 
     def reset_all_stations(self):
         """
@@ -227,19 +244,15 @@ if __name__ == "__main__":
 
     sprinkler = OpenSprinkler(debug=debug, number_of_stations=NUMBER_OF_STATIONS)
 
-    # See if we have a dealy in place to prevent the operation
-    if os.path.exists(os.path.join(CUR_DIR, 'DELAY')):
-        sprinkler.log("Found DELAY file. Aborting operations.")
-        sprinkler.cleanup()
-        sys.exit()
-    
     # We register the cleanup method to make sure everything is 
     # properly closed out, even if an error occurs.
     atexit.register(sprinkler.cleanup)
 
     # If they pass station zero, we assume that to be an "all off" command.
     if station_number > 0:
-        sprinkler.operate_station(station_number, number_minutes)
+        # Make sure there is no delay in effect
+        if not sprinkler.check_for_delay():
+            sprinkler.operate_station(station_number, number_minutes)
     else:
         # We don't actually do anything here, since the stations will automatically
         # be reset when the file exits.

@@ -1,4 +1,4 @@
-OpenSprinklerPi-Neptune
+ospi-cli
 ======================
 
 A command-line interface to run individual stations on your OpenSprinkler Pi for a set number of minutes.
